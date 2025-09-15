@@ -1,11 +1,11 @@
 @extends('templates.admin')
-@section('title', 'Unit Kerja')
+@section('title', 'Sekolah')
 @section('header')
 <div class="container-xl">
   <div class="row g-2 align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Unit Kerja
+        Sekolah
       </h2>
     </div>
     <div class="col-auto">
@@ -33,11 +33,11 @@
       <div class="card">
         <div class="card-header">
           <div class="ms-auto">
-            <form action="{{ route('admin.unit-kerja.index') }}" class="">
+            <form action="{{ route('admin.sekolah.index') }}" class="">
               <div class="d-flex gap-1">
                 <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search">
                 <button type="submit" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-magnifying-glass"></i></button>
-                <a href="{{ route('admin.unit-kerja.index') }}" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-times"></i></a>
+                <a href="{{ route('admin.sekolah.index') }}" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-times"></i></a>
               </div>
             </form>
           </div>
@@ -53,15 +53,15 @@
               </tr>
             </thead>
             <tbody>
-              @foreach ($unitKerjas as $unitKerja)
+              @foreach ($sekolahs as $sekolah)
                 <tr>
-                  <td>{{ ($unitKerjas->currentPage() - 1) * $unitKerjas->perPage() + $loop->iteration }}</td>
-                  <td>{{ $unitKerja->nama }}</td>
-                  <td>{{ $unitKerja->keterangan }}</td>
+                  <td>{{ ($sekolahs->currentPage() - 1) * $sekolahs->perPage() + $loop->iteration }}</td>
+                  <td>{{ $sekolah->nama }}</td>
+                  <td>{{ $sekolah->keterangan }}</td>
                   <td>
                     <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $unitKerja->id }}"><i class="fa-solid fa-pen"></i></button>
-                      <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $unitKerja->id }}"><i class="fa-solid fa-trash"></i></button>
+                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $sekolah->id }}"><i class="fa-solid fa-pen"></i></button>
+                      <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $sekolah->id }}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -71,8 +71,8 @@
         </div>
         <div class="card-footer d-flex align-items-center">
           <ul class="pagination m-0 ms-auto">
-            @if($unitKerjas->hasPages())
-              {{ $unitKerjas->appends(request()->query())->links('pagination::bootstrap-4') }}
+            @if($sekolahs->hasPages())
+              {{ $sekolahs->appends(request()->query())->links('pagination::bootstrap-4') }}
             @else
               <li class="page-item">No more records</li>
             @endif
@@ -86,7 +86,7 @@
 <div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <form action="{{ route('admin.unit-kerja.store') }}" method="POST" class="">
+      <form action="{{ route('admin.sekolah.store') }}" method="POST" class="">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title">Create</h5>
@@ -115,11 +115,11 @@
   </div>
 </div>
 
-@foreach ($unitKerjas as $unitKerja)
-<div class="modal modal-blur fade" id="edit{{ $unitKerja->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+@foreach ($sekolahs as $sekolah)
+<div class="modal modal-blur fade" id="edit{{ $sekolah->id }}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <form action="{{ route('admin.unit-kerja.update', $unitKerja->id) }}" method="POST" class="">
+      <form action="{{ route('admin.sekolah.update', $sekolah->id) }}" method="POST" class="">
         @csrf
         @method('PUT')
         <div class="modal-header">
@@ -129,12 +129,12 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label required">Nama</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama" value="{{ $unitKerja->nama }}">
+            <input type="text" class="form-control" name="nama" placeholder="Nama" value="{{ $sekolah->nama }}">
             @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Keterangan</label>
-            <textarea class="form-control" name="keterangan" rows="3" placeholder="Keterangan">{{ $unitKerja->keterangan }}</textarea>
+            <textarea class="form-control" name="keterangan" rows="3" placeholder="Keterangan">{{ $sekolah->keterangan }}</textarea>
             @error('keterangan')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
@@ -150,13 +150,13 @@
 </div>
 @endforeach
 
-@foreach ($unitKerjas as $unitKerja)
-<div class="modal modal-blur fade" id="delete{{ $unitKerja->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+@foreach ($sekolahs as $sekolah)
+<div class="modal modal-blur fade" id="delete{{ $sekolah->id }}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-danger"></div>
-      <form action="{{ route('admin.unit-kerja.destroy', $unitKerja->id) }}" method="POST">
+      <form action="{{ route('admin.sekolah.destroy', $sekolah->id) }}" method="POST">
         @csrf
         @method('Delete')
         <div class="modal-body text-center py-4">

@@ -1,18 +1,42 @@
 @extends('templates.user')
 @section('title', 'Index')
 @section('header')
+@php
+  $today = now()->toDateString();
+  $shiftHariIni = \App\Models\Shift::where('user_id', auth()->id())
+      ->whereDate('tanggal', $today)
+      ->first();
+@endphp
 <div class="row">
   <div class="d-flex align-items-center">
-    <div class="d-flex justify-content-center p-3"><img src="/profile-picture/{{ auth()->user()->profile_picture }}" alt="" class="rounded-circle border border-dark border-3" width="70"></div>
+    <div class="d-flex justify-content-center p-3">
+      <img src="/profile-picture/{{ auth()->user()->profile_picture }}" alt="" class="rounded-circle border border-dark border-3" width="70">
+    </div>
     <div>
       <div class="text-white fs-1">{{ auth()->user()->name }}</div>
-      <div class="text-white fs-3">{{ auth()->user()->jabatan }}</div>
+      <div class="text-white fs-3">
+        {{ auth()->user()->jabatan }} | 
+        @if($shiftHariIni) 
+          {{ $shiftHariIni->shift }} 
+        @else 
+          Belum ada jadwal 
+        @endif
+      </div>
     </div>
   </div>
 </div>
 @endsection
 @section('content')
 <div style="border-radius: 70px; border-bottom-left-radius: 0; border-bottom-right-radius: 0;" class="bg-white p-0 px-5 py-5 vh-100">
+  <div class="row g-2 align-items-center mb-3">
+    <div class="col">
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="btn-list">
+        <a href="{{ route('user.dashboard') }}" class="btn btn-danger rounded-pill px-3">Back</a>
+      </div>
+    </div>
+  </div>
   <div class="row">
     @if(Session::get('error'))
       <div>
@@ -21,58 +45,127 @@
         </div>
       </div>
     @endif
-    <div class="mb-3">
-      <div id="map" class="border border-3 border-dark rounded rounded-5" style="height: 300px;"></div>
-    </div>
-    <div id="lokasi-tidak-sesuai" style="display: none;">
-      <div class="text-center fs-3 fw-bold mb-3">Anda Tidak Dapat Melakukan Absensi</div>
-      <div class="text-center fw-bold fs-1">{{ \Carbon\Carbon::parse()->format('H:i:s') }}</div>
-      <div class="text-center fw-bold mb-3">{{ \Carbon\Carbon::parse()->translatedFormat('l, d F Y') }}</div>
-      <div class="border border-3 border-danger p-3 mb-3">
-        <div class="text-center text-danger fs-3 fw-bold">Lokasi Tidak Sesuai</div>
+
+    @if($shiftHariIni && $shiftHariIni->shift == 'WFO')
+      <div class="mb-3">
+        <div id="map" class="border border-3 border-dark rounded rounded-5" style="height: 300px;"></div>
       </div>
-      <div class="text-center fw-bold mb-3">Jika tidak sesuai dengan lokasi click button Check Lokasi lagi</div>
-    </div>
-    <form action="{{ route('user.absen') }}" method="POST">
+      <div id="lokasi-tidak-sesuai" style="display: none;">
+        <div class="text-center fs-3 fw-bold mb-3">Anda Tidak Dapat Melakukan Absensi</div>
+        <div class="text-center fw-bold fs-1">{{ \Carbon\Carbon::parse()->format('H:i:s') }}</div>
+        <div class="text-center fw-bold mb-3">{{ \Carbon\Carbon::parse()->translatedFormat('l, d F Y') }}</div>
+        <div class="border border-3 border-danger p-3 mb-3">
+          <div class="text-center text-danger fs-3 fw-bold">Lokasi Tidak Sesuai</div>
+        </div>
+        <div class="text-center fw-bold mb-3">Jika tidak sesuai dengan lokasi click button Check Lokasi lagi</div>
+      </div>
+    @elseif($shiftHariIni && $shiftHariIni->shift == 'WFH')
+      <div class="mb-3">
+        <label class="form-label"><i class="fa-solid fa-location-dot"></i> Lokasi</label>
+        <div class="fw-bold fs-5">{{ $lokasi ? $lokasi->nama : '-' }}</div>
+        <div>{{ $lokasi ? $lokasi->deskripsi : '' }}</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><i class="fa-solid fa-clock"></i> Jam Masuk</label>
+        <div class="fw-bold fs-5">{{ $lokasi ? $lokasi->jam_masuk : '-' }}</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><i class="fa-solid fa-clock"></i> Jam Pulang</label>
+        <div class="fw-bold fs-5">{{ $lokasi ? $lokasi->jam_pulang : '-' }}</div>
+      </div>
+    @else
+      <div class="text-center fw-bold text-danger">Shift hari ini belum diatur</div>
+    @endif
+
+    <form action="{{ route('user.absen') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <div class="d-flex justify-content-center">
-          <button type="button" class="btn btn-primary px-5 rounded-pill mb-3" id="absen">Check Lokasi</button>
-        </div>
-        <div id="form" style="display: none;">
-            <div class="mb-3">
-                <label class="form-label"><i class="fa-solid fa-location-dot"></i> Lokasi</label>
-                <div id="namaLokasi" class="mb-1 fw-bold fs-5"></div>
-                <div id="deskripsiLokasi"></div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label"><i class="fa-solid fa-lock"></i> Token</label>
-                <input readonly type="text" class="form-control" name="token" placeholder="Token" id="token">
-                <div class="text-danger">Masukan access token diatas</div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label required"><i class="fa-solid fa-key"></i> Confirm Token</label>
-                <input type="number" class="form-control" name="" placeholder="Token" id="confirmToken">
-            </div>
-            <input type="hidden" class="form-control" name="status" id="status">
-            <input type="hidden" class="form-control" name="shift" placeholder="" value="{{ request('shift') }}">
-            <input type="hidden" class="form-control" name="lat" placeholder="" id="lat">
-            <input type="hidden" class="form-control" name="long" placeholder="" id="long">
-            <input type="hidden" class="form-control" name="lokasi_id" placeholder="" id="lokasi">
-            <input type="hidden" class="form-control" name="jam_masuk_siang" placeholder="" id="jam_masuk_siang">
-            <input type="hidden" class="form-control" name="jam_pulang_siang" placeholder="" id="jam_pulang_siang">
-            <input type="hidden" class="form-control" name="jam_masuk_malam" placeholder="" id="jam_masuk_malam">
-            <input type="hidden" class="form-control" name="jam_pulang_malam" placeholder="" id="jam_pulang_malam">
-            <div class="d-flex justify-content-center gap-1">
-              <button type="submit" class="btn btn-success px-3 rounded-pill" id="checkInButton" disabled>Check In</button>
-              <button type="submit" class="btn btn-danger px-3 rounded-pill" id="checkOutButton" disabled>Check Out</button>
-            </div>
-        </div>
+        @if($shiftHariIni && $shiftHariIni->shift == 'WFO')
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-primary px-5 rounded-pill mb-3" id="absen">Check Lokasi</button>
+          </div>
+          <div id="form" style="display: none;">
+              <div class="mb-3">
+                  <label class="form-label"><i class="fa-solid fa-location-dot"></i> Lokasi</label>
+                  <div id="namaLokasi" class="mb-1 fw-bold fs-5"></div>
+                  <div id="deskripsiLokasi"></div>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label"><i class="fa-solid fa-lock"></i> Token</label>
+                  <input readonly type="text" class="form-control" name="token" placeholder="Token" id="token">
+                  <div class="form-text text-danger">Masukan access token diatas</div>
+              </div>
+              <div class="mb-3">
+                  <label class="form-label required"><i class="fa-solid fa-key"></i> Confirm Token</label>
+                  <input type="number" class="form-control" name="" placeholder="Token" id="confirmToken">
+              </div>
+              <input type="hidden" class="form-control" name="status" id="status">
+              <input type="hidden" class="form-control" name="shift" value="{{ $shiftHariIni->shift }}">
+              <input type="hidden" class="form-control" name="lat" id="lat">
+              <input type="hidden" class="form-control" name="long" id="long">
+              <input type="hidden" class="form-control" name="lokasi_id" id="lokasi">
+              <input type="hidden" class="form-control" name="jam_masuk" id="jam_masuk">
+              <input type="hidden" class="form-control" name="jam_pulang" id="jam_pulang">
+              <div class="mb-3">
+                <label class="form-label"><i class="fa-solid fa-file"></i> Upload Progress</label>
+                <input type="file" class="form-control" name="progress_file">
+                <div class="form-text text-danger">Format: jpg, jpeg, png, pdf, doc, docx (max 5MB)</div>
+                <div class="form-text">Anda wajib mengunggah file progress pada bagian ini. Jika tidak mengunggah, maka progress Anda tidak akan tercatat dalam sistem, sehingga dianggap belum ada progress pekerjaan.</div>
+              </div>
+              <div class="d-flex justify-content-center gap-1">
+                <button type="submit" class="btn btn-success px-3 rounded-pill" id="checkInButton" disabled>Check In</button>
+                <button type="submit" class="btn btn-danger px-3 rounded-pill" id="checkOutButton" disabled>Check Out</button>
+              </div>
+          </div>
+        @elseif($shiftHariIni && $shiftHariIni->shift == 'WFH')
+          <input type="hidden" class="form-control" name="status" id="status">
+          <input type="hidden" class="form-control" name="shift" value="{{ $shiftHariIni->shift }}">
+          <input type="hidden" class="form-control" name="jam_masuk" value="{{ $lokasi ? $lokasi->jam_masuk : '' }}">
+          <input type="hidden" class="form-control" name="jam_pulang" value="{{ $lokasi ? $lokasi->jam_pulang : '' }}">
+          <input type="hidden" class="form-control" name="lokasi_id" value="{{ auth()->user()->lokasi_id }}">
+          <input type="hidden" class="form-control" name="token" value="WFH-{{ now()->format('His') }}">
+          <input type="hidden" name="lat" id="lat">
+          <input type="hidden" name="long" id="long">
+          <script>
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('lat').value = position.coords.latitude;
+                    document.getElementById('long').value = position.coords.longitude;
+                });
+            }
+          </script>
+          <div class="mb-3">
+            <label class="form-label"><i class="fa-solid fa-file"></i> Upload Progress</label>
+            <input type="file" class="form-control" name="progress_file">
+            <div class="form-text text-danger">Format: jpg, jpeg, png, pdf, doc, docx (max 5MB)</div>
+            <div class="form-text">Anda wajib mengunggah file progress pada bagian ini. Jika tidak mengunggah, maka progress Anda tidak akan tercatat dalam sistem, sehingga dianggap belum ada progress pekerjaan.</div>
+          </div>
+          <div class="d-flex justify-content-center gap-1">
+            <button type="submit" 
+                    class="btn btn-success px-3 rounded-pill" 
+                    id="checkInButton" 
+                    {{ $sudahCheckIn ? 'disabled' : '' }}
+                    onclick="document.getElementById('status').value='1'">
+                Check In
+            </button>
+            <button type="submit" 
+                    class="btn btn-danger px-3 rounded-pill" 
+                    id="checkOutButton" 
+                    {{ !$sudahCheckIn || $sudahCheckOut ? 'disabled' : '' }}
+                    onclick="document.getElementById('status').value='2'">
+                Check Out
+            </button>
+          </div>
+        @endif
     </form>
   </div>
   @include('templates.footer')
 </div>
 @endsection
+
 @push('scripts')
+@if($shiftHariIni && $shiftHariIni->shift == 'WFO')
 <script>
   var map = L.map('map').setView([0, 0], 2);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(map);
@@ -105,8 +198,6 @@
               }).addTo(map);
 
               bounds.push(latLng);
-          } else {
-              console.warn('Invalid location data:', location);
           }
       });
 
@@ -114,8 +205,6 @@
           var latLngBounds = L.latLngBounds(bounds);
           map.fitBounds(latLngBounds);
       }
-  } else {
-      console.error('Locations data is not an array or is empty:', locations);
   }
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -170,21 +259,16 @@
                     var officeLng = parseFloat(location.long);
                     var radius = parseFloat(location.radius);
                     var officeId = location.id;
-                    var jamMasukSiang = location.jam_masuk_siang;
-                    var jamPulangSiang = location.jam_pulang_siang;
-                    var jamMasukMalam = location.jam_masuk_malam;
-                    var jamPulangMalam = location.jam_pulang_malam;
+                    var jamMasuk = location.jam_masuk;
+                    var jamPulang = location.jam_pulang;
 
                     var distance = calculateDistance(userLat, userLng, officeLat, officeLng);
                     if (distance <= radius) {
                         document.getElementById('lat').value = userLat;
                         document.getElementById('long').value = userLng;
                         document.getElementById('lokasi').value = officeId;
-                        document.getElementById('jam_masuk_siang').value = jamMasukSiang;
-                        document.getElementById('jam_pulang_siang').value = jamPulangSiang;
-                        document.getElementById('jam_masuk_malam').value = jamMasukMalam;
-                        document.getElementById('jam_pulang_malam').value = jamPulangMalam;
-                        console.log(namaLokasi);
+                        document.getElementById('jam_masuk').value = jamMasuk;
+                        document.getElementById('jam_pulang').value = jamPulang;
                         document.getElementById('namaLokasi').textContent = location.nama;
                         document.getElementById('deskripsiLokasi').textContent = location.deskripsi;
                         return true;
@@ -208,11 +292,7 @@
 
                     document.querySelector('#lokasi-tidak-sesuai .fs-1').textContent = getCurrentTimestamp();
                 }
-            }, function(error) {
-                console.error("Geolocation error: " + error.message);
             });
-        } else {
-            console.error("Geolocation is not supported by this browser.");
         }
     }
 
@@ -259,10 +339,10 @@
 
     setTimeout(function() {
         getUserLocation();
-
         button.innerHTML = 'Check Lokasi';
         button.disabled = false;
     }, 1000);
   });
 </script>
+@endif
 @endpush

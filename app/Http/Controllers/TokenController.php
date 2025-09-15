@@ -53,26 +53,4 @@ class TokenController extends Controller
             ]);
         }
     }
-
-    public function token(Request $request) {
-        $query = Token::with('lokasi');
-
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('token', 'like', '%' . $search . '%');
-            });
-        }
-
-        if ($request->has('tanggal')) {
-            $tanggal = $request->input('tanggal');
-            $query->whereDate('tanggal', $tanggal);
-        }
-
-        $tokens = $query->latest()->paginate(10);
-
-        return view('admin.token', compact(
-            'tokens',
-        ));
-    }
 }

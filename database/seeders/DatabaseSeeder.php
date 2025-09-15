@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         $users = [
             [
                 'name' => 'Admin',
-                'email' => 'admin@smart-absensi.com',
+                'email' => 'admin@gmail.com',
                 'password' => bcrypt('admin123*'),
                 'phone' => 123456789,
                 'profile_picture' => 'default.png',

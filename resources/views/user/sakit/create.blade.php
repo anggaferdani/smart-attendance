@@ -12,13 +12,13 @@
 </div>
 @endsection
 @section('content')
-<div style="border-radius: 70px; border-bottom-left-radius: 0; border-bottom-right-radius: 0;" class="bg-white p-0 px-5 py-5 vh-100">
+<div style="border-radius: 70px; border-bottom-left-radius: 0; border-bottom-right-radius: 0;" class="bg-white p-0 px-5 py-5">
   <div class="row g-2 align-items-center mb-3">
     <div class="col">
     </div>
     <div class="col-auto ms-auto">
       <div class="btn-list">
-        <a href="{{ route('user.dashboard') }}" class="btn btn-success rounded-pill px-3">Home</a>
+        <a href="{{ route('user.sakit.index') }}" class="btn btn-danger rounded-pill px-3">Back</a>
       </div>
     </div>
   </div>

@@ -28,8 +28,8 @@
           <td>: <strong>{{ $izin->user->jabatan }}</strong></td>
         </tr>
         <tr>
-          <td style="width: 20%;">Unit Kerja</td>
-          <td>: {{ $izin->user->unitKerja->nama ?? '-' }}</td>
+          <td style="width: 20%;">Sekolah</td>
+          <td>: {{ $izin->user->sekolah->nama ?? '-' }}</td>
         </tr>
         <tr>
           <td style="width: 20%;">Lokasi Kerja</td>

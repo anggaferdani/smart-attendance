@@ -18,10 +18,8 @@ return new class extends Migration
             $table->string('lat');
             $table->string('long');
             $table->string('radius');
-            $table->time('jam_masuk_siang');
-            $table->time('jam_pulang_siang');
-            $table->time('jam_masuk_malam');
-            $table->time('jam_pulang_malam');
+            $table->time('jam_masuk');
+            $table->time('jam_pulang');
             $table->string('slug')->unique();
             $table->integer('status')->default(1);
             $table->timestamps();

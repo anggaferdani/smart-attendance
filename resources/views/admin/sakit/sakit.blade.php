@@ -10,9 +10,7 @@
     </div>
     <div class="col-auto ms-auto">
       <div class="btn-list">
-        <a href="{{ route('admin.sakit.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('admin.sakit.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">Export PDF</a>
-        <a href="{{ route('admin.sakit.index', array_merge(request()->query(), ['export' => 'print'])) }}" class="btn btn-secondary" target="_blank">Print Laporan</a>
+        
       </div>
     </div>
   </div>

@@ -18,7 +18,7 @@
     </div>
     <div class="col-auto ms-auto">
       <div class="btn-list">
-        <a href="{{ route('user.dashboard') }}" class="btn btn-success rounded-pill px-3">Home</a>
+        <a href="{{ route('user.sakit.index') }}" class="btn btn-danger rounded-pill px-3">Back</a>
       </div>
     </div>
   </div>

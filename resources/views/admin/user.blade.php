@@ -52,7 +52,7 @@
                 <th>No. HP</th>
                 <th>Email</th>
                 <th>Jabatan</th>
-                <th>Unit Kerja</th>
+                <th>Sekolah</th>
                 <th>Lokasi</th>
                 <th>Action</th>
               </tr>
@@ -66,7 +66,7 @@
                   <td>{{ $user->phone ?? '-' }}</td>
                   <td>{{ $user->email ?? '-' }}</td>
                   <td>{{ $user->jabatan ?? '-' }}</td>
-                  <td>{{ $user->unitKerja->nama ?? '-' }}</td>
+                  <td>{{ $user->sekolah->nama ?? '-' }}</td>
                   <td>{{ $user->lokasi->nama ?? '-' }}</td>
                   <td>
                     <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $user->id }}"><i class="fa-solid fa-pen"></i></button>
@@ -143,14 +143,14 @@
             @error('jabatan')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Unit Kerja</label>
-            <select class="form-select" name="unit_kerja_id">
+            <label class="form-label required">Sekolah</label>
+            <select class="form-select" name="sekolah_id">
               <option disabled selected value="">Pilih</option>
-              @foreach($unitKerjas as $unitKerja)
-                  <option value="{{ $unitKerja->id }}">{{ $unitKerja->nama }}</option>
+              @foreach($sekolahs as $sekolah)
+                  <option value="{{ $sekolah->id }}">{{ $sekolah->nama }}</option>
               @endforeach
             </select>
-            @error('unit_kerja_id')<div class="text-danger">{{ $message }}</div>@enderror
+            @error('sekolah_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">
@@ -219,14 +219,14 @@
             @error('jabatan')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Unit Kerja</label>
-            <select class="form-select" name="unit_kerja_id">
+            <label class="form-label required">Sekolah</label>
+            <select class="form-select" name="sekolah_id">
               <option disabled selected value="">Pilih</option>
-              @foreach($unitKerjas as $unitKerja)
-                <option value="{{ $unitKerja->id }}" @if($user->unit_kerja_id == $unitKerja->id) @selected(true) @endif>{{ $unitKerja->nama }}</option>
+              @foreach($sekolahs as $sekolah)
+                <option value="{{ $sekolah->id }}" @if($user->sekolah_id == $sekolah->id) @selected(true) @endif>{{ $sekolah->nama }}</option>
               @endforeach
             </select>
-            @error('unit_kerja_id')<div class="text-danger">{{ $message }}</div>@enderror
+            @error('sekolah_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">

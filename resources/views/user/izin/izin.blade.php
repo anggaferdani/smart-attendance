@@ -1,12 +1,25 @@
 @extends('templates.user')
 @section('title', 'Izin')
 @section('header')
+@php
+  $today = now()->toDateString();
+  $shiftHariIni = \App\Models\Shift::where('user_id', auth()->id())
+      ->whereDate('tanggal', $today)
+      ->first();
+@endphp
 <div class="row">
   <div class="d-flex align-items-center">
     <div class="d-flex justify-content-center p-3"><img src="/profile-picture/{{ auth()->user()->profile_picture }}" alt="" class="rounded-circle border border-dark border-3" width="70"></div>
     <div>
       <div class="text-white fs-1">{{ auth()->user()->name }}</div>
-      <div class="text-white fs-3">{{ auth()->user()->jabatan }}</div>
+      <div class="text-white fs-3">
+        {{ auth()->user()->jabatan }} | 
+        @if($shiftHariIni) 
+          {{ $shiftHariIni->shift }} 
+        @else 
+          Belum ada jadwal 
+        @endif
+      </div>
     </div>
   </div>
 </div>
@@ -20,7 +33,7 @@
     <div class="col-auto ms-auto">
       <div class="btn-list">
         <a href="{{ route('user.izin.create') }}" class="btn btn-primary rounded-pill px-3">Ajukan Izin</a>
-        <a href="{{ route('user.dashboard') }}" class="btn btn-success rounded-pill px-3">Home</a>
+        <a href="{{ route('user.dashboard') }}" class="btn btn-danger rounded-pill px-3">Back</a>
       </div>
     </div>
   </div>
@@ -75,8 +88,6 @@
     </ul>
   </div>
 
-  @include('templates.footer')
-
   @foreach ($izins as $izin)
     <div class="modal modal-blur fade" id="delete{{ $izin->id }}" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -104,6 +115,8 @@
       </div>
     </div>
   @endforeach
+
+  @include('templates.footer')
 </div>
 @endsection
 @push('scripts')

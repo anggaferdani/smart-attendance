@@ -5,17 +5,18 @@ use App\Http\Controllers\IzinController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AbsenController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SakitController;
+use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IzinAdminController;
 use App\Http\Controllers\UserAdminController;
 use App\Http\Controllers\ExperienceController;
-use App\Http\Controllers\AuthenticationController;
-use App\Http\Controllers\ContactPersonController;
-use App\Http\Controllers\IzinAdminController;
 use App\Http\Controllers\SakitAdminController;
-use App\Http\Controllers\SakitController;
-use App\Http\Controllers\UnitKerjaAdminController;
+use App\Http\Controllers\SekolahAdminController;
+use App\Http\Controllers\ContactPersonController;
+use App\Http\Controllers\AuthenticationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,11 +48,18 @@ Route::prefix('admin')->name('admin.')->group(function(){
         Route::resource('experience', ExperienceController::class);
         Route::resource('admin', AdminController::class);
         Route::resource('user', UserAdminController::class);
+        Route::get('shift/template', [ShiftController::class, 'template'])->name('shift.template');
+        Route::post('shift/import', [ShiftController::class, 'import'])->name('shift.import');
+        Route::put('shift/{tanggal}/{shift}', [ShiftController::class, 'update'])->name('shift.update');
+        Route::put('shift/{tanggal}/{shift}', [ShiftController::class, 'update'])->name('shift.update');
+        Route::delete('shift/{tanggal}/{shift}', [ShiftController::class, 'destroy'])->name('shift.destroy');
+        Route::post('shift', [ShiftController::class, 'store'])->name('shift.store');
+        Route::get('shift', [ShiftController::class, 'index'])->name('shift.index');
         Route::resource('lokasi', LokasiController::class);
-        Route::resource('unit-kerja', UnitKerjaAdminController::class);
+        Route::resource('sekolah', SekolahAdminController::class);
         Route::get('/lokasi/preview/{slug}', [LokasiController::class, 'preview'])->name('lokasi.preview');
         Route::resource('lokasi', LokasiController::class);
-        Route::get('/token', [TokenController::class, 'token'])->name('token');
+        Route::get('/absen/export/{format}', [AbsenController::class, 'export'])->name('absen.export');
         Route::get('/absen', [AbsenController::class, 'absen'])->name('absen');
         Route::resource('izin', IzinAdminController::class);
         Route::put('/izin/approve/{id}', [IzinAdminController::class, 'approve'])->name('izin.approve');

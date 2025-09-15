@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Lokasi;
-use App\Models\UnitKerja;
+use App\Models\Sekolah;
 use Illuminate\Http\Request;
 
 class UserAdminController extends Controller
@@ -25,12 +25,12 @@ class UserAdminController extends Controller
         $users = $query->latest()->paginate(10);
 
         $lokasis = Lokasi::where('status', 1)->get();
-        $unitKerjas = UnitKerja::where('status', 1)->get();
+        $sekolahs = Sekolah::where('status', 1)->get();
 
         return view('admin.user', compact(
             'users',
             'lokasis',
-            'unitKerjas',
+            'sekolahs',
         ));
     }
 
@@ -45,7 +45,7 @@ class UserAdminController extends Controller
                 'email' => 'nullable|email|unique:users,email',
                 'password' => 'required',
                 'lokasi_id' => 'required',
-                'unit_kerja_id' => 'required',
+                'sekolah_id' => 'required',
             ], [
                 'profile_picture.dimensions' => 'Foto profil harus memiliki rasio 1:1.',
                 'profile_picture.image' => 'Foto profil harus berupa gambar.',
@@ -57,7 +57,7 @@ class UserAdminController extends Controller
                 'email.unique' => 'Email sudah terdaftar.',
                 'password.required' => 'Password wajib diisi.',
                 'lokasi_id.required' => 'Lokasi wajib diisi.',
-                'unit_kerja_id.required' => 'Unit kerja wajib diisi.',
+                'sekolah_id.required' => 'Sekolah wajib diisi.',
             ]);
             
             $profilePicturePath = $request->hasFile('profile_picture')
@@ -72,7 +72,7 @@ class UserAdminController extends Controller
                 'password' => bcrypt($request['password']),
                 'jabatan' => $request['jabatan'],
                 'lokasi_id' => $request['lokasi_id'],
-                'unit_kerja_id' => $request['unit_kerja_id'],
+                'sekolah_id' => $request['sekolah_id'],
                 'role' => 2,
             ];
 
@@ -97,7 +97,7 @@ class UserAdminController extends Controller
             'phone' => 'required|unique:users,phone,'.$user->id.",id",
             'email' => 'nullable|email|unique:users,email,'.$user->id.",id",
             'lokasi_id' => 'required',
-            'unit_kerja_id' => 'required',
+            'sekolah_id' => 'required',
         ], [
             'profile_picture.dimensions' => 'Foto profil harus memiliki rasio 1:1.',
             'name.required' => 'Nama wajib diisi.',
@@ -106,7 +106,7 @@ class UserAdminController extends Controller
             'email.email' => 'Email harus berformat valid.',
             'email.unique' => 'Email sudah terdaftar.',
             'lokasi_id.required' => 'Lokasi wajib diisi.',
-            'unit_kerja_id.required' => 'Unit kerja wajib diisi.',
+            'sekolah_id.required' => 'Sekolah wajib diisi.',
         ]);
 
         try {
@@ -116,7 +116,7 @@ class UserAdminController extends Controller
                 'email' => $request['email'],
                 'jabatan' => $request['jabatan'],
                 'lokasi_id' => $request['lokasi_id'],
-                'unit_kerja_id' => $request['unit_kerja_id'],
+                'sekolah_id' => $request['sekolah_id'],
             ];
 
             if ($request['password']) {

@@ -4,8 +4,8 @@
 <div class="container container-tight py-4">
   <div class="card card-md border-0">
     <div class="card-body py-0">
-      <div id="datetime" class="text-center fw-bold fs-2 mb-5"></div>
-      <img src="{{ asset('images/login.jpeg') }}" alt="" class="mb-2">
+      <div id="datetime" class="text-center fw-bold fs-2 mb-4"></div>
+      <img src="{{ asset('images/spero.png') }}" alt="" class="mb-3">
       <h1 class="text-center mb-4">Selamat Datang</h1>
       @if(Session::get('success'))
         <div class="alert alert-important alert-success" role="alert">
@@ -26,10 +26,10 @@
           <input type="password" class="form-control rounded-pill px-3 border border-3 border-dark" name="password" placeholder="Password">
         </div>
         <div class="form-footer">
-          <button type="submit" class="btn btn-primary w-100 rounded-pill">Login</button>
+          <button type="submit" class="btn w-100 rounded-pill" style="background: linear-gradient(135deg, #A000FF, #FF00A8) !important; color: #fff; border: none;">Login</button>
         </div>
       </form>
-      <div class="text-center mt-5"><img src="{{ asset('images/logo.png') }}" alt="" class="img-fluid" width="200"></div>
+      <div class="text-center fw-bold fs-3 mt-5">PT Spero Mahakarya Nusantara</div>
     </div>
   </div>
 </div>

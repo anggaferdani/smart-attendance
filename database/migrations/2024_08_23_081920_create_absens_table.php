@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('absens', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('token_id');
-            $table->foreign('token_id')->references('id')->on('tokens')->onDelete('cascade');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('kode')->unique();
-            $table->string('lat');
-            $table->string('long');
+            $table->unsignedBigInteger('token_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->text('progress_file')->nullable();
+            $table->string('kode')->unique()->nullable();
+            $table->string('lat')->nullable();
+            $table->string('long')->nullable();
             $table->dateTime('tanggal');
-            $table->string('shift');
+            $table->string('shift')->nullable();
             $table->integer('status');
             $table->timestamps();
         });

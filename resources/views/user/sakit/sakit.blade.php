@@ -1,12 +1,25 @@
 @extends('templates.user')
 @section('title', 'Sakit')
 @section('header')
+@php
+  $today = now()->toDateString();
+  $shiftHariIni = \App\Models\Shift::where('user_id', auth()->id())
+      ->whereDate('tanggal', $today)
+      ->first();
+@endphp
 <div class="row">
   <div class="d-flex align-items-center">
     <div class="d-flex justify-content-center p-3"><img src="/profile-picture/{{ auth()->user()->profile_picture }}" alt="" class="rounded-circle border border-dark border-3" width="70"></div>
     <div>
       <div class="text-white fs-1">{{ auth()->user()->name }}</div>
-      <div class="text-white fs-3">{{ auth()->user()->jabatan }}</div>
+      <div class="text-white fs-3">
+        {{ auth()->user()->jabatan }} | 
+        @if($shiftHariIni) 
+          {{ $shiftHariIni->shift }} 
+        @else 
+          Belum ada jadwal 
+        @endif
+      </div>
     </div>
   </div>
 </div>
@@ -20,7 +33,7 @@
     <div class="col-auto ms-auto">
       <div class="btn-list">
         <a href="{{ route('user.sakit.create') }}" class="btn btn-primary rounded-pill px-3">Ajukan Izin</a>
-        <a href="{{ route('user.dashboard') }}" class="btn btn-success rounded-pill px-3">Home</a>
+        <a href="{{ route('user.dashboard') }}" class="btn btn-danger rounded-pill px-3">Back</a>
       </div>
     </div>
   </div>
@@ -76,34 +89,35 @@
   </div>
 
   @foreach ($izins as $izin)
-  <div class="modal modal-blur fade" id="delete{{ $izin->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        <div class="modal-status bg-danger"></div>
-        <form action="{{ route('user.sakit.destroy', $izin->id) }}" method="POST">
-          @csrf
-          @method('Delete')
-          <div class="modal-body text-center py-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
-            <h3>Are you sure?</h3>
-            <div class="text-secondary">Are you sure you want to delete this? This action cannot be undone.</div>
-          </div>
-          <div class="modal-footer">
-            <div class="w-100">
-              <div class="row">
-                <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">Cancel</a></div>
-                <div class="col"><button type="submit" class="btn btn-danger w-100" data-bs-dismiss="modal">Delete</button></div>
+    <div class="modal modal-blur fade" id="delete{{ $izin->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-danger"></div>
+          <form action="{{ route('user.sakit.destroy', $izin->id) }}" method="POST">
+            @csrf
+            @method('Delete')
+            <div class="modal-body text-center py-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+              <h3>Are you sure?</h3>
+              <div class="text-secondary">Are you sure you want to delete this? This action cannot be undone.</div>
+            </div>
+            <div class="modal-footer">
+              <div class="w-100">
+                <div class="row">
+                  <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">Cancel</a></div>
+                  <div class="col"><button type="submit" class="btn btn-danger w-100" data-bs-dismiss="modal">Delete</button></div>
+                </div>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
+  @endforeach
+  
   @include('templates.footer')
 </div>
-@endforeach
 @endsection
 @push('scripts')
 <script>

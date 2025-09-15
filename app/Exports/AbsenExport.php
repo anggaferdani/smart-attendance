@@ -2,95 +2,65 @@
 
 namespace App\Exports;
 
-use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AbsenExport implements FromView, WithMultipleSheets
+class AbsenExport implements FromView, WithStyles
 {
-    protected $absens;
+    protected $absen;
     protected $daysInMonth;
-    protected $userLateness;
-    protected $userOvertime;
+    protected $monthYear;
 
-    public function __construct($absens, $daysInMonth, $userLateness, $userOvertime)
+    public function __construct($absen, $daysInMonth, $monthYear)
     {
-        $this->absens = $absens;
+        $this->absen = $absen;
         $this->daysInMonth = $daysInMonth;
-        $this->userLateness = $userLateness;
-        $this->userOvertime = $userOvertime;
+        $this->monthYear = $monthYear;
     }
 
     public function view(): View
     {
-        $months = $this->absens->groupBy(function($date) {
-            return Carbon::parse($date->tanggal)->format('F Y');
-        });
-
-        return view('admin.exports.excel', [
-            'months' => $months,
+        return view('exports.absen', [
+            'absen' => $this->absen,
             'daysInMonth' => $this->daysInMonth,
-            'userLateness' => $this->userLateness,
-            'userOvertime' => $this->userOvertime,
+            'monthYear' => $this->monthYear,
         ]);
     }
 
-    public function sheets(): array
+    public function styles(Worksheet $sheet)
     {
-        $months = $this->absens->groupBy(function($date) {
-            return Carbon::parse($date->tanggal)->format('F Y');
-        });
+        $sheet->getStyle('A1:Z1')->getFont()->setBold(true);
 
-        $sheets = [];
-
-        foreach ($months as $month => $absens) {
-            $userLateness = [];
-            $userOvertime = [];
-
-            foreach ($absens as $absen) {
-                $userLateness[$absen->user_id][$month] = $absen->status == 3 ? 1 : 0;
-                $userOvertime[$absen->user_id][$month] = $absen->token->status == 2 ? 1 : 0;
-            }
-
-            $sheets[] = new MonthSheet($month, $absens, $this->daysInMonth, $userLateness, $userOvertime);
+        foreach(range('A','Z') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        return $sheets;
-    }
-}
+        $rowIndex = 2;
+        foreach ($this->absen as $r) {
+            for ($d = 1; $d <= $this->daysInMonth; $d++) {
+                $day = $r['harian'][$d] ?? ['label' => '', 'color' => ''];
+                $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($d + 1);
+                $cell = $col . $rowIndex;
 
-class MonthSheet implements FromView, WithTitle
-{
-    protected $month;
-    protected $absens;
-    protected $daysInMonth;
-    protected $userLateness;
-    protected $userOvertime;
+                if ($day['color'] === 'yellow') {
+                    $sheet->getStyle($cell)->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setARGB('FFFF00');
+                } elseif ($day['color'] === 'red') {
+                    $sheet->getStyle($cell)->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setARGB('FF0000');
+                } elseif ($day['color'] === 'green') {
+                    $sheet->getStyle($cell)->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setARGB('00FF00');
+                }
+            }
+            $rowIndex++;
+        }
 
-    public function __construct($month, $absens, $daysInMonth, $userLateness, $userOvertime)
-    {
-        $this->month = $month;
-        $this->absens = $absens;
-        $this->daysInMonth = $daysInMonth;
-        $this->userLateness = $userLateness;
-        $this->userOvertime = $userOvertime;
-    }
-
-    public function view(): View
-    {
-        return view('admin.exports.excel', [
-            'month' => $this->month,
-            'absens' => $this->absens,
-            'daysInMonth' => $this->daysInMonth,
-            'userLateness' => $this->userLateness,
-            'userOvertime' => $this->userOvertime,
-        ]);
-    }
-
-    public function title(): string
-    {
-        return $this->month;
+        return [];
     }
 }

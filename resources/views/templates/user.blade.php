@@ -33,13 +33,13 @@
       </h1>
       <div class="navbar-nav flex-row order-md-last">
       </div>
-      <a href="{{ route('logout') }}" class="btn btn-danger rounded-pill px-3 ms-auto">Exit</a>
+      <a href="{{ route('logout') }}" class="btn btn-danger rounded-pill px-3 ms-auto">Logout</a>
     </div>
   </header>
   <div class="col-md-4 m-auto">
     <div class="page-wrapper">
       <div class="page-body my-0">
-        <div class="container bg-blue px-0">
+        <div class="container px-0" style="background: linear-gradient(135deg, #5B00B3 0%, #007BFF 40%, #00D4FF 75%, #5B00B3 100%) !important;">
           @yield('header')
           @yield('dashboard')
           @yield('content')

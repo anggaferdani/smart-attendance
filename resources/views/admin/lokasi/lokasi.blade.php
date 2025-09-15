@@ -122,24 +122,14 @@
             @error('radius')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Jam Masuk Shift Pagi</label>
-            <input type="time" class="form-control" name="jam_masuk_siang" placeholder="Jam Masuk Shift Pagi">
-            @error('jam_masuk_siang')<div class="text-danger">{{ $message }}</div>@enderror
+            <label class="form-label required">Jam Masuk</label>
+            <input type="time" class="form-control" name="jam_masuk" placeholder="Jam Masuk">
+            @error('jam_masuk')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Jam Pulang Shift Pagi</label>
-            <input type="time" class="form-control" name="jam_pulang_siang" placeholder="Jam Pulang Shift Pagi">
-            @error('jam_pulang_siang')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Jam Masuk Shift Malam</label>
-            <input type="time" class="form-control" name="jam_masuk_malam" placeholder="Jam Masuk Shift malam">
-            @error('jam_masuk_malam')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Jam Pulang Shift Malam</label>
-            <input type="time" class="form-control" name="jam_pulang_malam" placeholder="Jam Pulang Shift malam">
-            @error('jam_pulang_malam')<div class="text-danger">{{ $message }}</div>@enderror
+            <label class="form-label required">Jam Pulang</label>
+            <input type="time" class="form-control" name="jam_pulang" placeholder="Jam Pulang">
+            @error('jam_pulang')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">
@@ -191,24 +181,14 @@
             @error('radius')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Jam Masuk Shift Pagi</label>
-            <input type="time" class="form-control" name="jam_masuk_siang" placeholder="Jam Masuk Shift Pagi" value="{{ $lokasi->jam_masuk_siang }}">
-            @error('jam_masuk_siang')<div class="text-danger">{{ $message }}</div>@enderror
+            <label class="form-label required">Jam Masuk</label>
+            <input type="time" class="form-control" name="jam_masuk" placeholder="Jam Masuk" value="{{ $lokasi->jam_masuk }}">
+            @error('jam_masuk')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Jam Pulang Shift Pagi</label>
-            <input type="time" class="form-control" name="jam_pulang_siang" placeholder="Jam Pulang Shift Pagi" value="{{ $lokasi->jam_pulang_siang }}">
-            @error('jam_pulang_siang')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Jam Masuk Shift Malam</label>
-            <input type="time" class="form-control" name="jam_masuk_malam" placeholder="Jam Masuk Shift Malam" value="{{ $lokasi->jam_masuk_malam }}">
-            @error('jam_masuk_malam')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Jam Pulang Shift Malam</label>
-            <input type="time" class="form-control" name="jam_pulang_malam" placeholder="Jam Pulang Shift Malam" value="{{ $lokasi->jam_pulang_malam }}">
-            @error('jam_pulang_malam')<div class="text-danger">{{ $message }}</div>@enderror
+            <label class="form-label required">Jam Pulang</label>
+            <input type="time" class="form-control" name="jam_pulang" placeholder="Jam Pulang" value="{{ $lokasi->jam_pulang }}">
+            @error('jam_pulang')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Izin;
 use App\Models\User;
 use App\Models\Absen;
+use App\Models\Shift;
 use App\Models\Lokasi;
 use App\Exports\AbsenExport;
 use Illuminate\Http\Request;
@@ -13,6 +15,91 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class AbsenController extends Controller
 {
+    public function export(Request $request, $format = 'excel')
+    {
+        $bulan = $request->input('bulan', Carbon::now()->month);
+        $tahun = $request->input('tahun', Carbon::now()->year);
+        $daysInMonth = Carbon::create($tahun, $bulan)->daysInMonth;
+        $monthYear = Carbon::create($tahun, $bulan)->format('F Y');
+
+        $karyawans = User::orderBy('name')->get();
+        $absenData = [];
+
+        foreach ($karyawans as $karyawan) {
+            $harian = [];
+            $totalHadir = $totalTelat = $totalIzin = $totalSakit = 0;
+
+            for ($d = 1; $d <= $daysInMonth; $d++) {
+                $tanggal = Carbon::create($tahun, $bulan, $d);
+
+                if ($tanggal->isWeekend()) {
+                    $harian[$d] = ['label' => '-', 'color' => ''];
+                    continue;
+                }
+
+                $shift = Shift::where('user_id', $karyawan->id)
+                    ->whereDate('tanggal', $tanggal)
+                    ->first();
+
+                $absensi = Absen::where('user_id', $karyawan->id)
+                    ->whereDate('tanggal', $tanggal)
+                    ->first();
+
+                $izin = Izin::where('user_id', $karyawan->id)
+                    ->whereDate('dari', '<=', $tanggal)
+                    ->whereDate('sampai', '>=', $tanggal)
+                    ->first();
+
+                $label = $shift ? $shift->shift : '-';
+                $color = '';
+
+                if ($izin && $izin->status_process == 2) {
+                    $color = 'green';
+                    if ($izin->status_izin == 1) $totalIzin++;
+                    elseif ($izin->status_izin == 2) $totalSakit++;
+                } elseif ($absensi) {
+                    if ($absensi->status == 3) {
+                        $color = 'yellow';
+                        $totalTelat++;
+                        $totalHadir++;
+                    } else {
+                        $color = ''; // Tepat waktu
+                        $totalHadir++;
+                    }
+                } else {
+                    if ($shift) {
+                        $color = 'red'; // Alpha / tidak hadir
+                    } else {
+                        $color = ''; // Tidak ada jadwal shift → tetap '-'
+                    }
+                }
+
+                $harian[$d] = ['label' => $label, 'color' => $color];
+            }
+
+            $absenData[] = [
+                'nama' => $karyawan->name,
+                'harian' => $harian,
+                'totalHadir' => $totalHadir,
+                'totalTelat' => $totalTelat,
+                'totalIzin' => $totalIzin,
+                'totalSakit' => $totalSakit,
+            ];
+        }
+
+        if ($format == 'excel') {
+            return Excel::download(new AbsenExport($absenData, $daysInMonth, $monthYear), "Absen-$monthYear.xlsx");
+        } else {
+            $pdf = Pdf::loadView('exports.absen', [
+                'absen' => $absenData,
+                'daysInMonth' => $daysInMonth,
+                'monthYear' => $monthYear,
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download("Absen-$monthYear.pdf");
+        }
+    }
+
     public function absen(Request $request) {
         $query = Absen::with('token', 'token.lokasi', 'user')->latest();
         
@@ -68,144 +155,13 @@ class AbsenController extends Controller
                 : Carbon::now()->format('Y-m-d');
         
         if ($request->has('export') && $request->export == 'excel') {
-            $absens = $query->get();
-            if ($absens->isEmpty()) {
-                return redirect()->back()->with('error', 'No data available to export.');
-            }
-
-            $users = User::with('absens')->get();
-
-            $months = $absens->groupBy(function($date) {
-                return Carbon::parse($date->tanggal)->format('F Y');
-            });
             
-            $userLateness = [];
-            $userOvertime = [];
-
-            foreach ($months as $month => $absens) {
-                $users = User::with('absens')->get();
-
-                foreach ($users as $user) {
-                    $lateCount = $absens->filter(function ($absen) use ($user) {
-                        return $absen->user_id == $user->id && $absen->status == 3 && $absen->token->status == 1;
-                    })->count();
-
-                    $overtimeCount = $absens->filter(function ($absen) use ($user) {
-                        return $absen->user_id == $user->id && $absen->status == 3 && $absen->token->status == 2;
-                    })->count();
-
-                    $userLateness[$user->id][$month] = $lateCount;
-                    $userOvertime[$user->id][$month] = $overtimeCount;
-                }
-            }
-        
-            $fileName = 'absen-' . $fileDate . '.xlsx';
-            return Excel::download(
-                new AbsenExport($query->get(), $daysInMonth, $userLateness, $userOvertime),
-                $fileName
-            );
         }
         
         if ($request->has('export') && $request->export == 'pdf') {
-            $absens = $query->get();
-            if ($absens->isEmpty()) {
-                return redirect()->back()->with('error', 'No data available to export.');
-            }
             
-            $fileName = 'absen-' . $fileDate . '.pdf';
-            $absens = $query->get();
-    
-            $absens = $absens->map(function($absen) {
-                $absen->tanggal = Carbon::parse($absen->tanggal);
-                return $absen;
-            });
-    
-            $users = User::with('absens')->get();
-    
-            $months = $absens->groupBy(function($date) {
-                return Carbon::parse($date->tanggal)->format('F Y');
-            });
-
-            $userLateness = [];
-            $userOvertime = [];
-
-            foreach ($months as $month => $absens) {
-                $users = User::with('absens')->get();
-
-                foreach ($users as $user) {
-                    $lateCount = $absens->filter(function ($absen) use ($user) {
-                        return $absen->user_id == $user->id && $absen->status == 3 && $absen->token->status == 1;
-                    })->count();
-
-                    $overtimeCount = $absens->filter(function ($absen) use ($user) {
-                        return $absen->user_id == $user->id && $absen->status == 3 && $absen->token->status == 2;
-                    })->count();
-
-                    $userLateness[$user->id][$month] = $lateCount;
-                    $userOvertime[$user->id][$month] = $overtimeCount;
-                }
-            }
-            
-            $pdf = Pdf::loadView('admin.exports.absen', [
-                'months' => $months,
-                'daysInMonth' => $daysInMonth,
-                'userLateness' => $userLateness,
-                'userOvertime' => $userOvertime,
-            ]);
-            $pdf->setPaper('A4', 'landscape');
-            return $pdf->download($fileName);
         }
 
-        if ($request->has('export') && $request->export == 'print') {
-            $absens = $query->get();
-            if ($absens->isEmpty()) {
-                return redirect()->back()->with('error', 'No data available to export.');
-            }
-            
-            $fileName = 'absen-' . $fileDate . '.pdf';
-            $absens = $query->get();
-    
-            $absens = $absens->map(function($absen) {
-                $absen->tanggal = Carbon::parse($absen->tanggal);
-                return $absen;
-            });
-    
-            $users = User::with('absens')->get();
-    
-            $months = $absens->groupBy(function($date) {
-                return Carbon::parse($date->tanggal)->format('F Y');
-            });
-
-            $userLateness = [];
-                $userOvertime = [];
-
-                foreach ($months as $month => $absens) {
-                    $users = User::with('absens')->get();
-
-                    foreach ($users as $user) {
-                        $lateCount = $absens->filter(function ($absen) use ($user) {
-                            return $absen->user_id == $user->id && $absen->status == 3 && $absen->token->status == 1;
-                        })->count();
-
-                        $overtimeCount = $absens->filter(function ($absen) use ($user) {
-                            return $absen->user_id == $user->id && $absen->status == 3 && $absen->token->status == 2;
-                        })->count();
-
-                        $userLateness[$user->id][$month] = $lateCount;
-                        $userOvertime[$user->id][$month] = $overtimeCount;
-                    }
-                }
-            
-            $pdf = Pdf::loadView('admin.exports.absen', [
-                'months' => $months,
-                'daysInMonth' => $daysInMonth,
-                'userLateness' => $userLateness,
-                'userOvertime' => $userOvertime,
-            ]);
-            $pdf->setPaper('A4', 'landscape');
-            return $pdf->stream($fileName);
-        }
-        
         $absens = $query->paginate(10);
         $lokasis = Lokasi::where('status', 1)->get();
     

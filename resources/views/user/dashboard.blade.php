@@ -1,11 +1,24 @@
 @extends('templates.user')
 @section('title', 'Izin')
 @section('header')
+@php
+  $today = now()->toDateString();
+  $shiftHariIni = \App\Models\Shift::where('user_id', auth()->id())
+      ->whereDate('tanggal', $today)
+      ->first();
+@endphp
 <div class="row">
   <div class="p-3">
     <div class="d-flex justify-content-center p-3"><img src="/profile-picture/{{ auth()->user()->profile_picture }}" alt="" class="rounded-circle border border-dark border-3" width="150"></div>
     <div class="text-center text-white fs-1">{{ auth()->user()->name }}</div>
-    <div class="text-center text-white fs-3">{{ auth()->user()->jabatan }}</div>
+    <div class="text-center text-white fs-3">
+      {{ auth()->user()->jabatan }} | 
+      @if($shiftHariIni) 
+        {{ $shiftHariIni->shift }} 
+      @else 
+        Belum ada jadwal 
+      @endif
+    </div>
   </div>
 </div>
 @endsection
@@ -13,12 +26,12 @@
 <div class="bg-white">
   <div class="row">
     <div class="p-3">
-      <div id="datetime" class="text-center fw-bold bg-yellow rounded-pill border border-dark border-3 p-1 fs-2"></div>
+      <div id="datetime" class="text-center fw-bold rounded-pill border border-dark border-3 p-1 fs-2" style="background: linear-gradient(135deg, #A000FF, #FF00A8) !important; color: #fff; border: none;"></div>
     </div>
     <div class="col-6 m-auto">
       <div class="row g-3">
         <div class="col-6">
-          <a href="{{ route('user.shift') }}">
+          <a href="{{ route('user.index') }}">
             <div class="border border-3 border-dark rounded-4 p-2">
               <img src="{{ asset('images/absen.png') }}" alt="">
             </div>

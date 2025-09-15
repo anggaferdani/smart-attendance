@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('tokens', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('lokasi_id');
-            $table->foreign('lokasi_id')->references('id')->on('lokasis')->onDelete('cascade');
-            $table->string('token');
+            $table->unsignedBigInteger('lokasi_id')->nullable();
+            $table->string('token')->nullable();
             $table->dateTime('tanggal');
             $table->integer('status');
             $table->timestamps();

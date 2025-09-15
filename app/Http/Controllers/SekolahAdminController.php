@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UnitKerja;
+use App\Models\Sekolah;
 use Illuminate\Http\Request;
 
-class UnitKerjaAdminController extends Controller
+class SekolahAdminController extends Controller
 {
     public function index(Request $request) {
-        $query = UnitKerja::where('status', 1);
+        $query = Sekolah::where('status', 1);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -17,10 +17,10 @@ class UnitKerjaAdminController extends Controller
             });
         }
 
-        $unitKerjas = $query->latest()->paginate(10);
+        $sekolahs = $query->latest()->paginate(10);
 
-        return view('admin.unit-kerja.unit-kerja', compact(
-            'unitKerjas',
+        return view('admin.sekolah.sekolah', compact(
+            'sekolahs',
         ));
     }
 
@@ -37,7 +37,7 @@ class UnitKerjaAdminController extends Controller
                 'keterangan' => $request['keterangan'],
             ];
 
-            UnitKerja::create($array);
+            Sekolah::create($array);
     
             return redirect()->back()->with('success', 'Success.');
         } catch (\Throwable $th) {
@@ -55,14 +55,14 @@ class UnitKerjaAdminController extends Controller
         ]);
 
         try {
-            $unitKerja = UnitKerja::find($id);
+            $sekolah = Sekolah::find($id);
     
             $array = [
                 'nama' => $request['nama'],
                 'keterangan' => $request['keterangan'],
             ];
 
-            $unitKerja->update($array);
+            $sekolah->update($array);
     
             return redirect()->back()->with('success', 'Success.');
         } catch (\Throwable $th) {
@@ -72,9 +72,9 @@ class UnitKerjaAdminController extends Controller
 
     public function destroy($id) {
         try {
-            $unitKerja = UnitKerja::find($id);
+            $sekolah = Sekolah::find($id);
 
-            $unitKerja->update([
+            $sekolah->update([
                 'status' => 2,
             ]);
 

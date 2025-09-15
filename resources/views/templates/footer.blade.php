@@ -1,7 +1,7 @@
 <footer class="footer footer-transparent d-print-none bg-white">
   <div class="container-xl">
     <div class="row text-center align-items-center">
-      <div class=""><img src="{{ asset('images/logo.png') }}" alt="" class="img-fluid" width="200"></div>
+      <div class="fw-bold fs-3 text-dark">PT Spero Mahakarya Nusantara</div>
     </div>
   </div>
 </footer>

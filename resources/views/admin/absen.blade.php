@@ -10,9 +10,17 @@
     </div>
     <div class="col-auto ms-auto">
       <div class="btn-list">
-        <a href="{{ route('admin.absen', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success {{ request('tanggal') ? 'disabled' : '' }}">Export Excel</a>
-        <a href="{{ route('admin.absen', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger {{ request('tanggal') ? 'disabled' : '' }}">Export PDF</a>
-        <a href="{{ route('admin.absen', array_merge(request()->query(), ['export' => 'print'])) }}" class="btn btn-secondary {{ request('tanggal') ? 'disabled' : '' }}" target="_blank">Print Laporan</a>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalAbsenFull">
+          Lihat Absen Bulanan
+      </button>
+        <a href="{{ route('admin.absen.export', ['format' => 'excel', 'bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" 
+          class="btn btn-success" target="_blank">
+          Export Excel
+        </a>
+        <a href="{{ route('admin.absen.export', ['format' => 'pdf', 'bulan' => request('bulan'), 'tahun' => request('tahun')]) }}" 
+          class="btn btn-danger" target="_blank">
+          Export PDF
+        </a>
       </div>
     </div>
   </div>
@@ -73,8 +81,9 @@
               <tr>
                 <th>No.</th>
                 <th>Nama</th>
-                <th>Kode</th>
                 <th>Tanggal</th>
+                <th>Kode</th>
+                <th>Token</th>
                 <th>Shift</th>
                 <th>Status Absen</th>
                 <th>Status</th>
@@ -86,13 +95,14 @@
                 <tr>
                   <td>{{ ($absens->currentPage() - 1) * $absens->perPage() + $loop->iteration }}</td>
                   <td>{{ $absen->user->name }}</td>
-                  <td>{{ $absen->kode }}</td>
                   <td>{{ $absen->tanggal }}</td>
+                  <td>{{ $absen->kode }}</td>
+                  <td>{{ $absen->token->token }}</td>
                   <td>
-                    @if($absen->shift == 'siang')
-                      <span class="badge bg-yellow text-yellow-fg">Pagi</span>
-                    @elseif($absen->shift == 'malam')
-                      <span class="badge bg-dark text-dark-fg">Malam</span>
+                    @if($absen->shift == 'WFH')
+                      <span class="badge bg-yellow text-yellow-fg">WFH</span>
+                    @elseif($absen->shift == 'WFO')
+                      <span class="badge bg-dark text-dark-fg">WFO</span>
                     @endif
                   </td>
                   <td>
@@ -150,6 +160,7 @@
           <div>Token : {{ $absen->kode }}</div>
           <div>Token : {{ $absen->token->token }}</div>
           <div>Lokasi : {{ $absen->token->lokasi->nama }}</div>
+          <div>Shift : @if($absen->shift == 'WFH') <span class="badge bg-yellow text-yellow-fg">WFH</span> @elseif($absen->shift == 'WFO') <span class="badge bg-dark text-dark-fg">WFO</span> @endif</div>
           <div>Status : @if($absen->token->status == 1) <span class="badge bg-blue text-blue-fg">Masuk</span> @elseif($absen->token->status == 2) <span class="badge bg-red text-red-fg">Pulang</span> @endif</div>
           <div>Nama : {{ $absen->user->name }}</div>
           <div>Email : {{ $absen->user->email }}</div>
@@ -168,6 +179,68 @@
   </div>
 </div>
 @endforeach
+
+<div class="modal fade" id="modalAbsenFull" tabindex="-1" aria-labelledby="modalAbsenFullLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAbsenFullLabel">Rekap Absen Bulanan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @php
+          $currentYear = now()->year;
+          $currentMonth = now()->month;
+        @endphp
+        <div class="row g-2 mb-3">
+          <div class="col-auto">
+            <select id="selectBulan" class="form-select">
+              @for($m=1; $m<=12; $m++)
+                <option value="{{ $m }}" {{ $currentMonth == $m ? 'selected' : '' }}>
+                  {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                </option>
+              @endfor
+            </select>
+          </div>
+          <div class="col-auto">
+            <select id="selectTahun" class="form-select">
+              @for($y = $currentYear - 2; $y <= $currentYear + 1; $y++)
+                <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+              @endfor
+            </select>
+          </div>
+          <div class="col-auto">
+            <button id="btnLoadRekap" class="btn btn-primary">Tampilkan</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm" style="font-size: 10px;">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                @for($d = 1; $d <= 31; $d++)
+                  <th>{{ $d }}</th>
+                @endfor
+                <th>Hadir</th>
+                <th>Terlambat</th>
+                <th>Izin</th>
+                <th>Sakit</th>
+              </tr>
+            </thead>
+            <tbody id="rekapAbsenBody">
+              <tr><td colspan="35" class="text-center">Pilih bulan dan tahun...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @endsection
 @push('scripts')
 <script>
@@ -185,6 +258,24 @@
   
       $('#dateRangePicker').on('cancel.daterangepicker', function(ev, picker) {
           $(this).val('');
+      });
+  });
+</script>
+<script>
+  $('#btnLoadRekap').on('click', function() {
+      let bulan = $('#selectBulan').val();
+      let tahun = $('#selectTahun').val();
+
+      $.ajax({
+          url: "{{ route('admin.absen') }}",
+          type: 'GET',
+          data: { ajax_rekap: true, bulan: bulan, tahun: tahun },
+          success: function(res) {
+              $('#rekapAbsenBody').html(res);
+          },
+          error: function() {
+              alert('Gagal memuat rekap!');
+          }
       });
   });
 </script>
