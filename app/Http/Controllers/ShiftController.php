@@ -42,6 +42,7 @@ class ShiftController extends Controller
             ->get()
             ->groupBy(fn($item) => $item->tanggal . '-' . $item->shift);
 
+
         return view('admin.shift', compact('users', 'shifts', 'tanggal'));
     }
 
@@ -58,6 +59,7 @@ class ShiftController extends Controller
 
         try {
             DB::beginTransaction();
+
             foreach ($request->user_ids as $userId) {
                 Shift::create([
                     'tanggal' => $request->tanggal,
@@ -65,7 +67,9 @@ class ShiftController extends Controller
                     'user_id' => $userId,
                 ]);
             }
+
             DB::commit();
+
             return redirect()->back()->with('success', 'Jadwal shift berhasil disimpan.');
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -74,6 +78,7 @@ class ShiftController extends Controller
     }
 
     public function show($id) {}
+
     public function edit($id) {}
 
     public function update(Request $request, $tanggal, $shift)
@@ -87,6 +92,7 @@ class ShiftController extends Controller
 
         try {
             DB::beginTransaction();
+
             Shift::where('tanggal', $tanggal)
                 ->where('shift', $shift)
                 ->delete();
@@ -98,7 +104,9 @@ class ShiftController extends Controller
                     'user_id' => $userId,
                 ]);
             }
+
             DB::commit();
+
             return redirect()->back()->with('success', 'Shift berhasil diupdate.');
         } catch (\Throwable $th) {
             DB::rollBack();
