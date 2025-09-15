@@ -18,7 +18,7 @@ class ShiftImport implements ToCollection
         foreach ($rows as $row) {
             if (empty($row[0])) continue;
 
-            $tanggal = \Carbon\Carbon::createFromFormat('d-m-Y', $row[0])->format('Y-m-d');
+            $tanggal = \Carbon\Carbon::parse($row[0])->format('Y-m-d');
 
             foreach ($row as $colIndex => $value) {
                 if ($colIndex === 0 || empty($value)) continue;
