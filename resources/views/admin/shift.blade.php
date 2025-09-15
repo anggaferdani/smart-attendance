@@ -51,7 +51,7 @@
             <tbody>
               @forelse ($shifts as $key => $shift)
               <tr>
-                <td>{{ $loop->iteration }}</td>
+                <td>{{ $loop->iteration + ($paginated->firstItem() - 1) }}</td>
                 <td>{{ \Carbon\Carbon::parse($shift->first()->tanggal)->format('d-m-Y') }}</td>
                 <td>{{ $shift->first()->shift }}</td>
                 <td>
@@ -69,6 +69,10 @@
               @endforelse
             </tbody>
           </table>
+        </div>
+
+        <div class="mt-3">
+          {{ $paginated->links() }}
         </div>
       </div>
     </div>
