@@ -38,6 +38,7 @@ class ShiftController extends Controller
 
         $shiftsQuery = Shift::with('user')
             ->when($tanggal, fn($q) => $q->whereDate('tanggal', $tanggal))
+            ->when(!$tanggal, fn($q) => $q->whereDate('tanggal', '>=', Carbon::today()))
             ->orderBy('tanggal', 'desc');
 
         $paginated = $shiftsQuery->paginate(10);

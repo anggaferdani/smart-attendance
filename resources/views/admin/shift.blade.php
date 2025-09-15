@@ -71,8 +71,14 @@
           </table>
         </div>
 
-        <div class="mt-3">
-          {{ $paginated->links() }}
+        <div class="card-footer d-flex align-items-center">
+          <ul class="pagination m-0 ms-auto">
+            @if($paginated->hasPages())
+              {{ $paginated->appends(request()->query())->links('pagination::bootstrap-4') }}
+            @else
+              <li class="page-item">No more records</li>
+            @endif
+          </ul>
         </div>
       </div>
     </div>
