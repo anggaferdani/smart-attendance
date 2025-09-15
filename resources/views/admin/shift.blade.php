@@ -56,7 +56,7 @@
                 <td>{{ $shift->first()->shift }}</td>
                 <td>
                   @foreach($shift as $s)
-                    <span class="badge bg-blue text-white">{{ $s->user->name }}</span>
+                    <span class="badge bg-blue text-white">{{ $s->user->name ?? '-' }}</span>
                   @endforeach
                 </td>
                 <td>
