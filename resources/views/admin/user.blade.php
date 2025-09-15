@@ -47,40 +47,35 @@
             <thead>
               <tr>
                 <th>No.</th>
-                <th>Profile Picture</th>
-                <th>Name</th>
-                <th>No. HP</th>
-                <th>Email</th>
-                <th>Jabatan</th>
-                <th>Sekolah</th>
-                <th>Lokasi</th>
-                <th>Action</th>
+                <th>Tanggal</th>
+                <th>Shift</th>
+                <th>User</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              @foreach ($users as $user)
+              @forelse ($shifts as $key => $group)
+                @foreach ($group as $shift)
+                  <tr>
+                    <td>{{ ($paginated->currentPage() - 1) * $paginated->perPage() + $loop->iteration }}</td>
+                    <td>{{ $shift->tanggal }}</td>
+                    <td>{{ $shift->shift }}</td>
+                    <td>{{ $shift->user->name }}</td>
+                    <td>{{ $shift->status }}</td>
+                  </tr>
+                @endforeach
+              @empty
                 <tr>
-                  <td>{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
-                  <td><a href="/profile-picture/{{ $user->profile_picture }}" target="_blank"><img src="/profile-picture/{{ $user->profile_picture }}" alt="" class="img-fluid rounded-circle" width="70"></a></td>
-                  <td>{{ $user->name }}</td>
-                  <td>{{ $user->phone ?? '-' }}</td>
-                  <td>{{ $user->email ?? '-' }}</td>
-                  <td>{{ $user->jabatan ?? '-' }}</td>
-                  <td>{{ $user->sekolah->nama ?? '-' }}</td>
-                  <td>{{ $user->lokasi->nama ?? '-' }}</td>
-                  <td>
-                    <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $user->id }}"><i class="fa-solid fa-pen"></i></button>
-                    <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $user->id }}"><i class="fa-solid fa-trash"></i></button>
-                  </td>
+                  <td colspan="5" class="text-center">Tidak ada data</td>
                 </tr>
-              @endforeach
+              @endforelse
             </tbody>
           </table>
         </div>
         <div class="card-footer d-flex align-items-center">
           <ul class="pagination m-0 ms-auto">
-            @if($users->hasPages())
-              {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
+            @if($paginated->hasPages())
+              {{ $paginated->appends(request()->query())->links('pagination::bootstrap-4') }}
             @else
               <li class="page-item">No more records</li>
             @endif
