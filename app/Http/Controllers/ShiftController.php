@@ -37,18 +37,18 @@ class ShiftController extends Controller
             ->where('status', 1)
             ->get();
 
-        $shiftsQuery = Shift::with('user')
+        $shiftsQuery = Shift::select('tanggal', 'shift')
             ->when($tanggal, fn($q) => $q->whereDate('tanggal', $tanggal))
             ->when(!$tanggal, fn($q) => $q->whereDate('tanggal', '>=', Carbon::today()))
+            ->groupBy('tanggal', 'shift')
             ->orderBy('tanggal', 'desc');
 
         $paginated = $shiftsQuery->paginate(10);
-        $shifts = $paginated->getCollection()->groupBy(fn($item) => $item->tanggal . '-' . $item->shift);
 
         return view('admin.shift', [
-            'users' => $users,
-            'shifts' => $shifts,
-            'tanggal' => $tanggal,
+            'users'     => $users,
+            'shifts'    => $paginated,
+            'tanggal'   => $tanggal,
             'paginated' => $paginated,
         ]);
     }
