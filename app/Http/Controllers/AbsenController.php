@@ -108,7 +108,7 @@ class AbsenController extends Controller
             $tahun = $request->input('tahun', now()->year);
             $daysInMonth = Carbon::create($tahun, $bulan)->daysInMonth;
 
-            $karyawans = User::orderBy('name')->get();
+            $karyawans = User::where('role', 2)->orderBy('name')->get();
             $absenData = [];
 
             foreach ($karyawans as $karyawan) {
