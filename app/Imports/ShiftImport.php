@@ -5,7 +5,6 @@ namespace App\Imports;
 use App\Models\User;
 use App\Models\Shift;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
 
@@ -13,30 +12,95 @@ class ShiftImport implements ToCollection
 {
     public function collection(Collection $rows)
     {
-        $headers = $rows->shift(); 
+        if ($rows->isEmpty()) {
+            return;
+        }
 
-        foreach ($rows as $row) {
-            if (empty($row[0])) continue;
+        $first = $rows->first();
+        $firstArray = $first instanceof Collection ? $first->toArray() : (array)$first;
+        $firstKeys = array_keys($firstArray);
+        $isAssoc = count(array_filter($firstKeys, 'is_string')) > 0;
 
-            $tanggal = \Carbon\Carbon::parse($row['tanggal'])->format('Y-m-d');
+        if ($isAssoc) {
+            foreach ($rows as $row) {
+                $rowArray = $row instanceof Collection ? $row->toArray() : (array)$row;
+                if (empty($rowArray['tanggal'])) {
+                    continue;
+                }
 
-            foreach ($row as $colIndex => $value) {
-                if ($colIndex === 0 || empty($value)) continue;
+                $tanggalValue = $rowArray['tanggal'];
 
-                $userName = trim($headers[$colIndex]);
-                $user = User::whereRaw('LOWER(name) = ?', [strtolower($userName)])->first();
+                if (is_numeric($tanggalValue)) {
+                    $tanggal = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalValue)->format('Y-m-d');
+                } else {
+                    $tanggal = Carbon::createFromFormat('d-m-Y', $tanggalValue)->format('Y-m-d');
+                }
 
-                if (!$user) continue;
+                foreach ($rowArray as $colName => $value) {
+                    if ($colName === 'tanggal' || empty($value)) {
+                        continue;
+                    }
 
-                Shift::updateOrCreate(
-                    [
-                        'tanggal' => $tanggal,
-                        'user_id' => $user->id,
-                    ],
-                    [
-                        'shift' => strtoupper(trim($value)),
-                    ]
-                );
+                    $userName = trim($colName);
+                    $user = User::whereRaw('LOWER(name) = ?', [strtolower($userName)])->first();
+                    if (!$user) {
+                        continue;
+                    }
+
+                    Shift::updateOrCreate(
+                        [
+                            'tanggal' => $tanggal,
+                            'user_id' => $user->id,
+                        ],
+                        [
+                            'shift' => strtoupper(trim($value)),
+                        ]
+                    );
+                }
+            }
+        } else {
+            $headers = $rows->shift();
+            $headerArray = $headers instanceof Collection ? $headers->toArray() : (array)$headers;
+
+            foreach ($rows as $row) {
+                $rowArray = $row instanceof Collection ? $row->toArray() : (array)$row;
+                if (empty($rowArray[0])) {
+                    continue;
+                }
+
+                $tanggalValue = $rowArray[0];
+
+                if (is_numeric($tanggalValue)) {
+                    $tanggal = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalValue)->format('Y-m-d');
+                } else {
+                    $tanggal = Carbon::createFromFormat('d-m-Y', $tanggalValue)->format('Y-m-d');
+                }
+
+                foreach ($rowArray as $colIndex => $value) {
+                    if ($colIndex === 0 || empty($value)) {
+                        continue;
+                    }
+
+                    $userName = trim($headerArray[$colIndex] ?? '');
+                    if ($userName === '') {
+                        continue;
+                    }
+
+                    $user = User::whereRaw('LOWER(name) = ?', [strtolower($userName)])->first();
+                    if (!$user) {
+                        continue;
+                    }
+
+                    Shift::updateOrCreate(
+                        [
+                            'tanggal' => $tanggal,
+                            'user_id' => $user->id,
+                        ],
+                        [
+                            'shift' => strtoupper(trim($value)),
+                        ]
+                    );
+                }
             }
         }
     }
