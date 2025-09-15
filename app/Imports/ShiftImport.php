@@ -18,7 +18,17 @@ class ShiftImport implements ToCollection
         foreach ($rows as $row) {
             if (empty($row[0])) continue;
 
-        $tanggal = \Carbon\Carbon::createFromFormat('Y-m-d', $row[0])->format('Y-m-d');
+            $value = $row['tanggal'];
+
+            if (is_numeric($value)) {
+                $tanggal = \Carbon\Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value))->format('Y-m-d');
+            } else {
+                try {
+                    $tanggal = \Carbon\Carbon::createFromFormat('d-m-Y', $value)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $tanggal = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                }
+            }
 
             foreach ($row as $colIndex => $value) {
                 if ($colIndex === 0 || empty($value)) continue;
