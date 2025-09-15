@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\ShiftTemplateExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon;
 
 class ShiftController extends Controller
 {
@@ -37,19 +36,14 @@ class ShiftController extends Controller
             ->where('status', 1)
             ->get();
 
-        $shiftsQuery = Shift::with('user')
+        $shifts = Shift::with('user')
             ->when($tanggal, fn($q) => $q->whereDate('tanggal', $tanggal))
-            ->when(!$tanggal, fn($q) => $q->whereDate('tanggal', '>=', Carbon::today()))
-            ->orderBy('tanggal', 'desc');
+            ->when(!$tanggal, fn($q) => $q->whereDate('tanggal', '>=', now()->toDateString()))
+            ->orderBy('tanggal', 'desc')
+            ->get()
+            ->groupBy(fn($item) => $item->tanggal . '-' . $item->shift);
 
-        $paginated = $shiftsQuery->paginate(10);
-
-        return view('admin.shift', [
-            'users'     => $users,
-            'shifts'    => $paginated,
-            'tanggal'   => $tanggal,
-            'paginated' => $paginated,
-        ]);
+        return view('admin.shift', compact('users', 'shifts', 'tanggal'));
     }
 
     public function create() {}

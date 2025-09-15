@@ -51,12 +51,12 @@
             <tbody>
               @forelse ($shifts as $key => $shift)
               <tr>
-                <td>{{ $loop->iteration + ($paginated->firstItem() - 1) }}</td>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ \Carbon\Carbon::parse($shift->first()->tanggal)->format('d-m-Y') }}</td>
                 <td>{{ $shift->first()->shift }}</td>
                 <td>
                   @foreach($shift as $s)
-                    <span class="badge bg-blue text-white">{{ $s->user->name ?? '-' }}</span>
+                    <span class="badge bg-blue text-white">{{ $s->user->name }}</span>
                   @endforeach
                 </td>
                 <td>
@@ -69,16 +69,6 @@
               @endforelse
             </tbody>
           </table>
-        </div>
-
-        <div class="card-footer d-flex align-items-center">
-          <ul class="pagination m-0 ms-auto">
-            @if($paginated->hasPages())
-              {{ $paginated->appends(request()->query())->links('pagination::bootstrap-4') }}
-            @else
-              <li class="page-item">No more records</li>
-            @endif
-          </ul>
         </div>
       </div>
     </div>
