@@ -31,6 +31,7 @@ class ShiftController extends Controller
     public function index(Request $request)
     {
         $tanggal = $request->get('tanggal');
+        $today = now()->toDateString();
 
         $users = User::where('role', 2)
             ->where('status', 1)
@@ -38,8 +39,11 @@ class ShiftController extends Controller
 
         $shifts = Shift::with('user')
             ->when($tanggal, fn($q) => $q->whereDate('tanggal', $tanggal))
-            ->when(!$tanggal, fn($q) => $q->whereDate('tanggal', '>=', now()->toDateString()))
-            ->orderBy('tanggal', 'desc')
+            ->when(!$tanggal, fn($q) => $q->whereDate('tanggal', '>=', $today))
+            ->orderByRaw("CASE 
+                WHEN tanggal = ? THEN 0 
+                ELSE 1 END", [$today])
+            ->orderBy('tanggal', 'asc')
             ->get()
             ->groupBy(fn($item) => $item->tanggal . '-' . $item->shift);
 
