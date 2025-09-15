@@ -262,10 +262,7 @@
   });
 </script>
 <script>
-  $('#btnLoadRekap').on('click', function() {
-      let bulan = $('#selectBulan').val();
-      let tahun = $('#selectTahun').val();
-
+  function loadRekap(bulan, tahun) {
       $.ajax({
           url: "{{ route('admin.absen') }}",
           type: 'GET',
@@ -277,6 +274,18 @@
               alert('Gagal memuat rekap!');
           }
       });
+  }
+
+  $('#btnLoadRekap').on('click', function() {
+      let bulan = $('#selectBulan').val();
+      let tahun = $('#selectTahun').val();
+      loadRekap(bulan, tahun);
+  });
+
+  $('#modalAbsenFull').on('shown.bs.modal', function() {
+      let bulan = $('#selectBulan').val();
+      let tahun = $('#selectTahun').val();
+      loadRekap(bulan, tahun);
   });
 </script>
 @endpush

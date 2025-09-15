@@ -63,14 +63,14 @@ class AbsenController extends Controller
                         $totalTelat++;
                         $totalHadir++;
                     } else {
-                        $color = ''; // Tepat waktu
+                        $color = '';
                         $totalHadir++;
                     }
                 } else {
                     if ($shift) {
-                        $color = 'red'; // Alpha / tidak hadir
+                        $color = 'red';
                     } else {
-                        $color = ''; // Tidak ada jadwal shift → tetap '-'
+                        $color = '';
                     }
                 }
 
@@ -102,7 +102,96 @@ class AbsenController extends Controller
 
     public function absen(Request $request) {
         $query = Absen::with('token', 'token.lokasi', 'user')->latest();
-        
+
+        if ($request->has('ajax_rekap') && $request->ajax()) {
+            $bulan = $request->input('bulan', now()->month);
+            $tahun = $request->input('tahun', now()->year);
+            $daysInMonth = Carbon::create($tahun, $bulan)->daysInMonth;
+
+            $karyawans = User::orderBy('name')->get();
+            $absenData = [];
+
+            foreach ($karyawans as $karyawan) {
+                $harian = [];
+                $totalHadir = $totalTelat = $totalIzin = $totalSakit = 0;
+
+                for ($d = 1; $d <= $daysInMonth; $d++) {
+                    $tanggal = Carbon::create($tahun, $bulan, $d);
+
+                    if ($tanggal->isWeekend()) {
+                        $harian[$d] = ['label' => '-', 'color' => ''];
+                        continue;
+                    }
+
+                    $shift = Shift::where('user_id', $karyawan->id)
+                                ->whereDate('tanggal', $tanggal)
+                                ->first();
+
+                    $absensi = Absen::where('user_id', $karyawan->id)
+                                    ->whereDate('tanggal', $tanggal)
+                                    ->first();
+
+                    $izin = Izin::where('user_id', $karyawan->id)
+                                ->whereDate('dari', '<=', $tanggal)
+                                ->whereDate('sampai', '>=', $tanggal)
+                                ->first();
+
+                    $label = $shift ? $shift->shift : '-';
+                    $color = '';
+
+                    if ($izin && $izin->status_process == 2) {
+                        $color = 'green';
+                        if ($izin->status_izin == 1) $totalIzin++;
+                        elseif ($izin->status_izin == 2) $totalSakit++;
+                    } elseif ($absensi) {
+                        if ($absensi->status == 3) {
+                            $color = 'yellow';
+                            $totalTelat++;
+                            $totalHadir++;
+                        } else {
+                            $color = '';
+                            $totalHadir++;
+                        }
+                    } else {
+                        if ($shift) {
+                            $color = 'red';
+                        } else {
+                            $color = '';
+                        }
+                    }
+
+                    $harian[$d] = ['label' => $label, 'color' => $color];
+                }
+
+                $absenData[] = [
+                    'nama' => $karyawan->name,
+                    'harian' => $harian,
+                    'totalHadir' => $totalHadir,
+                    'totalTelat' => $totalTelat,
+                    'totalIzin' => $totalIzin,
+                    'totalSakit' => $totalSakit,
+                ];
+            }
+
+            $html = '';
+            foreach ($absenData as $data) {
+                $html .= '<tr>';
+                $html .= '<td>'.$data['nama'].'</td>';
+                for ($i = 1; $i <= $daysInMonth; $i++) {
+                    $label = $data['harian'][$i]['label'] ?? '-';
+                    $color = $data['harian'][$i]['color'] ?? '';
+                    $html .= '<td style="background-color:'.$color.';">'.$label.'</td>';
+                }
+                $html .= '<td>'.$data['totalHadir'].'</td>';
+                $html .= '<td>'.$data['totalTelat'].'</td>';
+                $html .= '<td>'.$data['totalIzin'].'</td>';
+                $html .= '<td>'.$data['totalSakit'].'</td>';
+                $html .= '</tr>';
+            }
+
+            return $html;
+        }
+
         if ($request->has('search') && !empty($request->input('search'))) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
