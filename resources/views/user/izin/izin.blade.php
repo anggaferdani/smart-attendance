@@ -58,6 +58,7 @@
           <div class="card-body">
             <div>Kode : {{ $izin->kode }}</div>
             <div>Dibuat : {{ \Carbon\Carbon::parse($izin->created_at)->format('d M Y H:m:s') }}</div>
+            <div>Alasan : {{ Str::title(str_replace('-', ' ', $izin->alasan)) }}</div>
             <div>Keterangan : {{ $izin->keterangan }}</div>
             <div>Status : @if($izin->status_process == 1) <span class="badge bg-blue text-blue-fg">Pending</span> @elseif($izin->status_process == 2) <span class="badge bg-green text-green-fg">Approved</span> @elseif($izin->status_process == 3) <span class="badge bg-red text-red-fg">Denied</span> @endif</div>
           </div>

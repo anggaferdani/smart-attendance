@@ -51,6 +51,15 @@
         @error('sampai')<div class="text-danger">{{ $message }}</div>@enderror
       </div>
       <div class="mb-3">
+        <label class="form-label required">Alasan</label>
+        <select class="form-select" name="alasan">
+          <option disabled selected value="">Pilih</option>
+          <option value="tidak-masuk">Tidak Masuk</option>
+          <option value="terlambat">Terlambat</option>
+        </select>
+        @error('sampai')<div class="text-danger">{{ $message }}</div>@enderror
+      </div>
+      <div class="mb-3">
         <label class="form-label required">Keterangan</label>
         <textarea class="form-control" name="keterangan" rows="3" placeholder="Keterangan" required></textarea>
         <div class="small text-muted">Data yang saya isi ini adalah benar dan dapat dipertanggung jawabkan.</div>

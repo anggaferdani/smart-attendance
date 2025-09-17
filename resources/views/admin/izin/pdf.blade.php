@@ -2,21 +2,18 @@
   <div>
     <div style="padding: 20px;">
       <div style="position: relative; margin-bottom: 30px; text-align: center;">
-        <div style="position: absolute; left: 40px; top: 0;">
-          <img src="{{ public_path('images/logo2.png') }}" width="55">
-        </div>
         <div>
-          <div style="font-weight: bold; font-size: 1rem;">PT GUNA CIPTA KREASI</div>
-          <div style="font-weight: bold;">Jalan Lapangan Bola No. 7 Kebon Jeruk Jakarta Barat</div>
+          <div style="font-weight: bold; font-size: 1rem;">{{ $izin->user->lokasi->nama }}</div>
+          <div style="font-weight: bold;">{{ $izin->user->lokasi->deskripsi }}</div>
         </div>
       </div>
       <hr style="margin-bottom: 30px;">
-      <div style="text-align: center; font-size: 1rem; font-weight: bold; margin-bottom: 30px;">FORMULIR PENGAJUAN IZIN KARYAWAN</div>
+      <div style="text-align: center; font-size: 1rem; font-weight: bold; margin-bottom: 30px;">FORMULIR PENGAJUAN IZIN</div>
       <div style="margin-bottom: 15px;">Kepada YTH</div>
-      <div>HRD PT Guna Cipta Kreasi</div>
+      <div>Penanggung Jawab</div>
       <div>di</div>
       <div style="margin-bottom: 15px;">Tempat</div>
-      <div style="margin-bottom: 15px;">Perihal: <strong>{{ $izin->keterangan }}</strong></div>
+      <div style="margin-bottom: 15px;">Perihal : {{ Str::title(str_replace('-', ' ', $izin->alasan)) }}</div>
       <div style="margin-bottom: 15px;">Saya yang bertanda tangan dibawah ini:</div>
       <table style="width: 100%; margin-bottom: 15px;">
         <tr>
@@ -32,20 +29,12 @@
           <td>: {{ $izin->user->sekolah->nama ?? '-' }}</td>
         </tr>
         <tr>
-          <td style="width: 20%;">Lokasi Kerja</td>
+          <td style="width: 20%;">Lokasi</td>
           <td>: {{ $izin->user->lokasi->nama }}, {{ $izin->user->lokasi->deskripsi }}</td>
         </tr>
       </table>
       <div style="margin-bottom: 15px;">
-        Bermaksud untuk mengajukan permohonan izin selama 
-        <strong>{{ \Carbon\Carbon::parse($izin->dari)->diffInDays(\Carbon\Carbon::parse($izin->sampai)) + 1 }}</strong> 
-        hari dari tanggal 
-        <strong>{{ \Carbon\Carbon::parse($izin->dari)->translatedFormat('d') }}</strong> bulan 
-        <strong>{{ \Carbon\Carbon::parse($izin->dari)->translatedFormat('F') }}</strong> tahun 
-        <strong>{{ \Carbon\Carbon::parse($izin->dari)->translatedFormat('Y') }}</strong> sampai dengan tanggal 
-        <strong>{{ \Carbon\Carbon::parse($izin->sampai)->translatedFormat('d') }}</strong> bulan 
-        <strong>{{ \Carbon\Carbon::parse($izin->sampai)->translatedFormat('F') }}</strong> tahun 
-        <strong>{{ \Carbon\Carbon::parse($izin->sampai)->translatedFormat('Y') }}</strong>.
+        Bermaksud untuk mengajukan permohonan izin.
       </div>
       <div style="margin-bottom: 15px;">
         Demikian surat permohonan ini saya buat. Atas perhatian nya saya ucapkan terima kasih.

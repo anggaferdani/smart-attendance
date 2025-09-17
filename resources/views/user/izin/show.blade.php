@@ -27,9 +27,9 @@
     <div class="text-center mb-3">Pengajuan anda sedang dalam proses persetujuan. Cek secara berkala untuk mendapatkan status persetujuan.</div>
     <div class="border border-3 border-dark rounded-5 p-3 text-center mb-3">
       <div>Nama : {{ $izin->user->name }}</div>
-      <div>Izin tidak masuk kerja</div>
       <div>Dari : {{ \Carbon\Carbon::parse($izin->dari)->format('d M Y') }}</div>
       <div>Sampai dengan : {{ \Carbon\Carbon::parse($izin->sampai)->format('d M Y') }}</div>
+      <div>Alasan : {{ Str::title(str_replace('-', ' ', $izin->alasan)) }}</div>
       <div>	Keperluan : {{ $izin->keterangan }}</div>
       @if($izin->lampiran)
         <div>	Lampiran : <a href="/izin/{{ $izin->lampiran }}" target="_blank">{{ $izin->lampiran }}</a></div>

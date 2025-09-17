@@ -98,7 +98,7 @@ class SakitController extends Controller
 
             $izin->update($array);
     
-            return redirect()->back()->with('success', 'Success.');
+            return redirect()->route('user.sakit.index')->with('success', 'Success.');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }

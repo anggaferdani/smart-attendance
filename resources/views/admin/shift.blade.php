@@ -8,7 +8,7 @@
     </div>
     <div class="col-auto">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Tambah Shift</a>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Shift</a>
         <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">Import Excel</a>
       </div>
     </div>
@@ -81,7 +81,7 @@
       <form action="{{ route('admin.shift.store') }}" method="POST">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title">Create Shift</h5>
+          <h5 class="modal-title">Create</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -123,7 +123,7 @@
         @csrf
         @method('PUT')
         <div class="modal-header">
-          <h5 class="modal-title">Edit Shift</h5>
+          <h5 class="modal-title">Edit</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -194,7 +194,7 @@
       <form action="{{ route('admin.shift.import') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title">Import Shift dari Excel</h5>
+          <h5 class="modal-title">Import Excel</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">

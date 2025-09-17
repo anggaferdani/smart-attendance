@@ -17,19 +17,18 @@
       <div class="card">
         <div class="card-body">
           <div class="d-flex align-items-center mb-5">
-            <div class="" style="position: absolute; transform: translate(40px, 0px);"><img src="{{ asset('images/logo2.png') }}" alt="" class="" width="70"></div>
             <div class="m-auto">
-              <div class="fw-bold text-center fs-3">PT GUNA CIPTA KREASI</div>
-              <div class="fw-bold text-center">Jalan Lapangan Bola No. 7 Kebon Jeruk Jakarta Barat</div>
+              <div class="fw-bold text-center fs-3">{{ $izin->user->lokasi->nama }}</div>
+              <div class="fw-bold text-center">{{ $izin->user->lokasi->deskripsi }}</div>
             </div>
           </div>
           <hr>
-          <div class="text-center fs-3 fw-bold mb-5">FORMULIR PENGAJUAN IZIN KARYAWAN</div>
+          <div class="text-center fs-3 fw-bold mb-5">FORMULIR PENGAJUAN IZIN</div>
           <div class="mb-3">Kepada YTH</div>
-          <div>HRD PT Guna Cipta Kreasi</div>
+          <div>Penanggung Jawab</div>
           <div>di</div>
           <div class="mb-3">Tempat</div>
-          <div class="mb-3">Perihal : <span class="fw-bold">{{ $izin->keterangan }}</span></div>
+          <div class="mb-3">Perihal : {{ Str::title(str_replace('-', ' ', $izin->alasan)) }}</div>
           <div class="mb-3">Saya yang bertanda tangan dibawah ini :</div>
           <table class="mb-3 w-100">
             <tr>
@@ -45,11 +44,11 @@
               <td>: {{ $izin->user->sekolah->nama ?? '-' }}</td>
             </tr>
             <tr>
-              <td style="width: 20%;">Lokasi Kerja</td>
+              <td style="width: 20%;">Lokasi</td>
               <td>: {{ $izin->user->lokasi->nama }}, {{ $izin->user->lokasi->deskripsi }}</td>
             </tr>
           </table>
-          <div class="mb-3">Bermaksud untuk mengajukan permohonan izin selama {{ \Carbon\Carbon::parse($izin->dari)->diffInDays(\Carbon\Carbon::parse($izin->sampai)) + 1 }} hari dari tanggal <span class="fw-bold">{{ \Carbon\Carbon::parse($izin->dari)->translatedFormat('d') }}</span> bulan <span class="fw-bold">{{ \Carbon\Carbon::parse($izin->dari)->translatedFormat('F') }}</span> tahun <span class="fw-bold">{{ \Carbon\Carbon::parse($izin->dari)->translatedFormat('Y') }}</span> sampai dengan tanggal <span class="fw-bold">{{ \Carbon\Carbon::parse($izin->sampai)->translatedFormat('d') }}</span> bulan <span class="fw-bold">{{ \Carbon\Carbon::parse($izin->sampai)->translatedFormat('F') }}</span> tahun <span class="fw-bold">{{ \Carbon\Carbon::parse($izin->sampai)->translatedFormat('Y') }}</span>.</div>
+          <div class="mb-3">Bermaksud untuk mengajukan permohonan izin.</div>
           <div class="mb-3">Demikian surat permohonan ini saya buat. Atas perhatian nya saya ucapkan terima kasih.</div>
           <div class="mb-3"><span class="fw-bold">{{ \Carbon\Carbon::parse($izin->sampai)->locale('id')->translatedFormat('l, d F Y') }}</span></div>
           <div class="mb-3">Hormat Saya,</div>

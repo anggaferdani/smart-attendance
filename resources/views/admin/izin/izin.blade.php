@@ -59,6 +59,7 @@
                 <th>Nama</th>
                 <th>Dari</th>
                 <th>Sampai</th>
+                <th>Alasan</th>
                 <th>Keterangan</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -72,6 +73,7 @@
                   <td>{{ $izin->user->name }}</td>
                   <td>{{ \Carbon\Carbon::parse($izin->dari)->format('d-m-Y') }}</td>
                   <td>{{ \Carbon\Carbon::parse($izin->sampai)->format('d-m-Y') }}</td>
+                  <td>{{ Str::title(str_replace('-', ' ', $izin->alasan)) }}</td>
                   <td>{{ $izin->keterangan }}</td>
                   <td>
                     @if($izin->status_process == 1)

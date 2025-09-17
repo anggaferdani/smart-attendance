@@ -24,6 +24,7 @@ class IzinController extends Controller
 
     public function store(Request $request) {
         $request->validate([
+            'alasan' => 'required',
             'keterangan' => 'required',
             'dari' => 'required',
             'sampai' => 'required|after_or_equal:dari',
@@ -36,6 +37,7 @@ class IzinController extends Controller
             $arrayIzin = [
                 'user_id' => Auth::id(),
                 'kode' => $kode,
+                'alasan' => $request['alasan'],
                 'keterangan' => $request['keterangan'],
                 'dari' => $request['dari'],
                 'sampai' => $request['sampai'],
@@ -69,6 +71,7 @@ class IzinController extends Controller
 
     public function update(Request $request, $id) {
         $request->validate([
+            'alasan' => 'required',
             'keterangan' => 'required',
             'dari' => 'required',
             'sampai' => 'required|after_or_equal:dari',
@@ -79,6 +82,7 @@ class IzinController extends Controller
             $izin = Izin::find($id);
     
             $array = [
+                'alasan' => $request['alasan'],
                 'keterangan' => $request['keterangan'],
                 'dari' => $request['dari'],
                 'sampai' => $request['sampai'],
@@ -105,7 +109,7 @@ class IzinController extends Controller
                 'status' => 2,
             ]);
 
-            return redirect()->back()->with('success', 'Success.');
+            return redirect()->route('user.izin.index')->with('success', 'Success.');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
